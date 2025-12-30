@@ -23,19 +23,19 @@
     (set-face-attribute 'centaur-tabs-selected nil
                         :background "#ffffff"
                         :foreground "#000000"
-                        :box '(:line-width 1 :color "#e0e0e0"))
+                        :box nil)
     (set-face-attribute 'centaur-tabs-unselected nil
                         :background "#e8e8e8"
                         :foreground "#666666"
-                        :box '(:line-width 1 :color "#d0d0d0"))
+                        :box nil)
     (set-face-attribute 'centaur-tabs-selected-modified nil
                         :background "#ffffff"
                         :foreground "#d75f00"
-                        :box '(:line-width 1 :color "#e0e0e0"))
+                        :box nil)
     (set-face-attribute 'centaur-tabs-unselected-modified nil
                         :background "#e8e8e8"
                         :foreground "#d75f00"
-                        :box '(:line-width 1 :color "#d0d0d0"))
+                        :box nil)
     (set-face-attribute 'centaur-tabs-active-bar-face nil
                         :background "#4078f2")
     (set-face-attribute 'centaur-tabs-modified-marker-selected nil
