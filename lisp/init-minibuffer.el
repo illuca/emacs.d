@@ -2,9 +2,30 @@
 ;;; Commentary:
 ;;; Code:
 
+;; Make ESC work as keyboard-quit in all minibuffer contexts
+;; Use both ESC and <escape> for compatibility
+(defun sanityinc/setup-minibuffer-escape ()
+  "Bind escape key to keyboard-quit in all minibuffer keymaps."
+  (define-key minibuffer-local-map (kbd "<escape>") #'abort-recursive-edit)
+  (define-key minibuffer-local-map [escape] #'abort-recursive-edit)
+  (define-key minibuffer-local-ns-map (kbd "<escape>") #'abort-recursive-edit)
+  (define-key minibuffer-local-ns-map [escape] #'abort-recursive-edit)
+  (define-key minibuffer-local-completion-map (kbd "<escape>") #'abort-recursive-edit)
+  (define-key minibuffer-local-completion-map [escape] #'abort-recursive-edit)
+  (define-key minibuffer-local-must-match-map (kbd "<escape>") #'abort-recursive-edit)
+  (define-key minibuffer-local-must-match-map [escape] #'abort-recursive-edit)
+  (define-key minibuffer-local-isearch-map (kbd "<escape>") #'abort-recursive-edit)
+  (define-key minibuffer-local-isearch-map [escape] #'abort-recursive-edit))
+
+(sanityinc/setup-minibuffer-escape)
 
 (when (maybe-require-package 'vertico)
   (add-hook 'after-init-hook 'vertico-mode)
+
+  ;; Make ESC work as keyboard-quit in vertico (minibuffer)
+  (with-eval-after-load 'vertico
+    (define-key vertico-map (kbd "<escape>") #'abort-recursive-edit)
+    (define-key vertico-map [escape] #'abort-recursive-edit))
 
   ;; Mini-posframe - show minibuffer in a posframe at top center
   (when (maybe-require-package 'mini-posframe)
