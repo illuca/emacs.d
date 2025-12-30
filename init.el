@@ -72,6 +72,8 @@
 (require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-dired)
+(require 'init-neotree)
+(require 'init-centaur-tabs)
 (require 'init-isearch)
 (require 'init-grep)
 (require 'init-uniquify)
@@ -200,7 +202,7 @@
 
 ;; Load basic editor defaults last so they win over other configs.
 (require 'basic-editor)
-
+(require 'init-modeline)
 (provide 'init)
 
 ;; Local Variables:

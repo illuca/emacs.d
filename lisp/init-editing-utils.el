@@ -87,13 +87,14 @@
 (when (fboundp 'display-line-numbers-mode)
   (setq-default display-line-numbers-width 3)
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook 'display-line-numbers-mode)
   (add-hook 'yaml-mode-hook 'display-line-numbers-mode)
   (add-hook 'yaml-ts-mode-hook 'display-line-numbers-mode))
 
 
 
 (when (boundp 'display-fill-column-indicator)
-  (setq-default indicate-buffer-boundaries 'left)
+  (setq-default indicate-buffer-boundaries nil)  ; 关闭边界指示器
   (setq-default display-fill-column-indicator-character ?┊))
 
 
