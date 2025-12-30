@@ -20,11 +20,22 @@
       (call-interactively #'write-file))))
 
 (defun basic-editor-find-file ()
-  "Open a file using a GUI open panel when available."
+  "Open a file using native macOS Finder dialog."
   (interactive)
-  (let ((use-file-dialog t)
-        (use-dialog-box t))
-    (call-interactively #'find-file)))
+  (if (and (eq system-type 'darwin)
+           (fboundp 'ns-read-file-name))
+      ;; Use native macOS file picker
+      (let ((file (ns-read-file-name "Open file: "
+                                     (or default-directory "~")
+                                     nil nil nil nil)))
+        (when file
+          (find-file file)))
+    ;; Fallback to standard find-file with dialog
+    (let ((use-file-dialog t)
+          (use-dialog-box t)
+          (completing-read-function #'completing-read-default)
+          (read-file-name-function #'read-file-name-default))
+      (call-interactively #'find-file))))
 
 (defun basic-editor-new-empty-buffer ()
   "Create and switch to a new empty buffer."
@@ -84,6 +95,11 @@
     (if (use-region-p)
         (indent-rigidly (region-beginning) (region-end) offset)
       (indent-rigidly (line-beginning-position) (line-end-position) offset))))
+
+(defun basic-editor-delete-to-bol ()
+  "Delete text from point back to the beginning of the line."
+  (interactive)
+  (kill-line 0))
 
 (defvar basic-editor--nav-back-stack nil)
 (defvar basic-editor--nav-forward-stack nil)
@@ -182,10 +198,16 @@
 (defun basic-editor--ensure-terminal-buffer ()
   (or (get-buffer basic-editor--terminal-buffer-name)
       (save-window-excursion
-        (if (fboundp 'vterm)
-            (vterm basic-editor--terminal-buffer-name)
+        (cond
+         ((fboundp 'eat)
+          (let ((buf (eat)))
+            (with-current-buffer buf
+              (rename-buffer basic-editor--terminal-buffer-name t))))
+         ((fboundp 'vterm)
+          (vterm basic-editor--terminal-buffer-name))
+         (t
           (ansi-term (or (getenv "SHELL") shell-file-name)
-                     basic-editor--terminal-buffer-base))
+                     basic-editor--terminal-buffer-base)))
         (get-buffer basic-editor--terminal-buffer-name))))
 
 (defun basic-editor-open-terminal ()
@@ -289,6 +311,8 @@
     (global-set-key (kbd "s-a") #'mark-whole-buffer)
     (global-set-key (kbd "s-s") #'basic-editor-save-buffer)
     (global-set-key (kbd "s-o") #'basic-editor-find-file)
+    (global-set-key (kbd "s-e") #'consult-recent-file)
+    (global-set-key (kbd "s-P") #'execute-extended-command)
     (global-set-key (kbd "s-n") #'basic-editor-new-empty-buffer)
     (global-set-key (kbd "s-N") #'make-frame-command)
     (global-set-key (kbd "s-p") #'print-buffer)
@@ -299,12 +323,19 @@
     (global-set-key (kbd "s-]") #'basic-editor-nav-forward)
     (global-set-key (kbd "s-b") #'basic-editor-open-terminal)
     (global-set-key (kbd "s-2") #'basic-editor-open-terminal-right)
-    (global-set-key (kbd "s-E") #'basic-editor-toggle-sidebar)
+    (global-set-key (kbd "s-E") #'neotree-toggle)
     (global-set-key (kbd "s-/") #'basic-editor-comment-toggle)
     (global-set-key (kbd "s-d") #'basic-editor-duplicate)
     (global-set-key (kbd "s-\\") #'basic-editor-split-right-and-focus)
     (global-set-key (kbd "<tab>") #'basic-editor-indent)
     (global-set-key (kbd "<backtab>") #'basic-editor-outdent)
+    (global-set-key (kbd "s-<delete>") #'basic-editor-delete-to-bol)
+    (global-set-key (kbd "s-<backspace>") #'basic-editor-delete-to-bol)
+    ;; Emacs Lisp evaluation shortcuts
+    (global-set-key (kbd "s-r") #'eval-last-sexp)
+    (global-set-key (kbd "s-R") #'eval-print-last-sexp)
+    ;; ESC to cancel/quit (like other modern editors)
+    (global-set-key (kbd "<escape>") #'keyboard-quit)
     (basic-editor--enable-navigation-history)))
 
 (menu-bar-mode 1)
