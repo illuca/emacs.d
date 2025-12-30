@@ -58,3 +58,16 @@ site-lisp/package/
 /projects
 /forge-*.sqlite
 /projectile.cache
+.history/
+
+AGENTS.md
+.augment/
+.claude/
+.clinerules/
+.cursor/
+.gemini/
+.iflow/
+CLAUDE.md
+CLINE.md
+IFLOW.md
+openspec

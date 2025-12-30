@@ -16,8 +16,8 @@
 
 ;; Suppress GUI features
 
-(setq use-file-dialog nil)
-(setq use-dialog-box nil)
+(setq use-file-dialog t)
+(setq use-dialog-box t)
 (setq inhibit-startup-screen t)
 
 
@@ -28,16 +28,25 @@
  window-resize-pixelwise t
  frame-resize-pixelwise t)
 
+;; Default font: Sarasa Mono SC at ~16px (Emacs uses 1/10 pt units)
+(when (display-graphic-p)
+  (set-face-attribute 'default nil :family "Sarasa Mono SC" :height 160))
+
+;; Add a little breathing room around the text.
+(setq-default line-spacing 0.15)
+
 (when (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))
+  (tool-bar-mode 1))
 (when (fboundp 'set-scroll-bar-mode)
-  (set-scroll-bar-mode nil))
+  (set-scroll-bar-mode 'right))
 
-(menu-bar-mode -1)
+;; Keep menu bar enabled for native integration
+(when (fboundp 'menu-bar-mode)
+  (menu-bar-mode 1))
 
-(let ((no-border '(internal-border-width . 0)))
-  (add-to-list 'default-frame-alist no-border)
-  (add-to-list 'initial-frame-alist no-border))
+(let ((padding '(internal-border-width . 8)))
+  (add-to-list 'default-frame-alist padding)
+  (add-to-list 'initial-frame-alist padding))
 
 (defun sanityinc/adjust-opacity (frame incr)
   "Adjust the background opacity of FRAME by increment INCR."
