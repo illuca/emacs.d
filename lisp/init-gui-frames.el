@@ -28,12 +28,23 @@
  window-resize-pixelwise t
  frame-resize-pixelwise t)
 
-;; Default font: Sarasa Mono SC at ~16px (Emacs uses 1/10 pt units)
+;; Default font: Sarasa Mono SC at ~14px logical pixels (Emacs uses 1/10 pt units)
 (when (display-graphic-p)
-  (set-face-attribute 'default nil :family "Sarasa Mono SC" :height 160))
+  ;; Set default font to 14pt which displays as ~14px on Retina screens
+  (set-face-attribute 'default nil :family "Sarasa Mono SC" :height 140)
+  (set-face-attribute 'fixed-pitch nil :family "Sarasa Mono SC" :height 140)
 
-;; Add a little breathing room around the text.
-(setq-default line-spacing 0.15)
+  ;; Specify the font for 'han' (Chinese) characters
+  (set-fontset-font t 'han (font-spec :family "Sarasa Mono SC" :size 14))
+
+  ;; Use `face-font-rescale-alist` to fine-tune CJK font scaling
+  ;; Adjust to prevent line height jumps when mixing Chinese and English
+  (setq face-font-rescale-alist '(("Sarasa Mono SC" . 1.0))))
+
+;; Keep line spacing zero so the box cursor aligns with glyphs.
+(setq-default line-spacing 0)
+;; Make the box cursor match the glyph height instead of the full line box.
+(setq-default x-stretch-cursor t)
 
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode 1))
@@ -44,7 +55,20 @@
 (when (fboundp 'menu-bar-mode)
   (menu-bar-mode 1))
 
-(let ((padding '(internal-border-width . 8)))
+(when (fboundp 'set-fringe-mode)
+  (set-fringe-mode '(12 . 8)))
+
+;; 禁用换行指示符（去掉两边的换行箭头符号）
+(setq-default fringe-indicator-alist
+              (delq (assq 'continuation fringe-indicator-alist)
+                    fringe-indicator-alist))
+
+;; 让fringe背景色与编辑区背景色一致，不显示分割线
+(add-hook 'after-init-hook
+          (lambda ()
+            (set-face-attribute 'fringe nil :background nil)))
+
+(let ((padding '(internal-border-width . 12)))
   (add-to-list 'default-frame-alist padding)
   (add-to-list 'initial-frame-alist padding))
 
@@ -72,8 +96,10 @@
 
 
 (when *is-a-mac*
-  (when (maybe-require-package 'ns-auto-titlebar)
-    (ns-auto-titlebar-mode)))
+  ;; Use the standard titlebar to keep the window title centered.
+  (setq ns-transparent-titlebar nil)
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . nil))
+  (add-to-list 'initial-frame-alist '(ns-transparent-titlebar . nil)))
 
 
 (setq frame-title-format
