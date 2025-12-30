@@ -52,6 +52,36 @@
       (kill-current-buffer)
     (kill-buffer-and-window)))
 
+(defun basic-editor-kill-buffer-and-window-simple ()
+  "Kill buffer and window with single confirmation if modified."
+  (interactive)
+  (if (and (buffer-modified-p)
+           (buffer-file-name))
+      ;; Buffer modified - ask once
+      (when (y-or-n-p (format "Buffer %s modified. Close without saving? " (buffer-name)))
+        (cl-letf (((symbol-function 'buffer-modified-p)
+                   (lambda (&optional buffer) nil)))
+          (if (one-window-p t)
+              (kill-buffer (current-buffer))
+            (kill-buffer-and-window))))
+    ;; Buffer not modified - just kill
+    (if (one-window-p t)
+        (kill-current-buffer)
+      (kill-buffer-and-window))))
+
+(defun basic-editor-quit-simple ()
+  "Quit Emacs with single confirmation if there are modified buffers."
+  (interactive)
+  (if (seq-some #'buffer-modified-p (buffer-list))
+      ;; Has modified buffers - ask once
+      (when (y-or-n-p "Modified buffers exist. Quit without saving? ")
+        (let ((kill-buffer-query-functions nil)
+             (kill-emacs-query-functions nil)
+             (kill-emacs-hook nil))
+          (kill-emacs)))
+    ;; No modified buffers - just quit
+    (kill-emacs)))
+
 (defun basic-editor-split-right-and-focus ()
   "Split the window to the right and focus the new window."
   (interactive)
@@ -364,8 +394,8 @@
     (global-set-key (kbd "s-P") #'execute-extended-command)
     (global-set-key (kbd "s-n") #'basic-editor-new-empty-buffer)
     (global-set-key (kbd "s-N") #'make-frame-command)
-    (global-set-key (kbd "s-w") #'basic-editor-kill-buffer-and-window)
-    (global-set-key (kbd "s-q") #'save-buffers-kill-terminal)
+    (global-set-key (kbd "s-w") #'basic-editor-kill-buffer-and-window-simple)
+    (global-set-key (kbd "s-q") #'basic-editor-quit-simple)
     (global-set-key (kbd "s-f") #'isearch-forward)
     (global-set-key (kbd "s-[") #'basic-editor-nav-back)
     (global-set-key (kbd "s-]") #'basic-editor-nav-forward)
