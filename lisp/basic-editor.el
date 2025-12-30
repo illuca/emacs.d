@@ -377,6 +377,11 @@
     (global-set-key (kbd "<backtab>") #'basic-editor-outdent)
     (global-set-key (kbd "s-<delete>") #'basic-editor-delete-to-bol)
     (global-set-key (kbd "s-<backspace>") #'basic-editor-delete-to-bol)
+    ;; Navigation to line beginning/end
+    (global-set-key (kbd "s-<left>") #'move-beginning-of-line)
+    (global-set-key (kbd "s-<right>") #'move-end-of-line)
+    (global-set-key (kbd "s-<up>") #'beginning-of-buffer)
+    (global-set-key (kbd "s-<down>") #'end-of-buffer)
     ;; Emacs Lisp evaluation shortcuts
     (global-set-key (kbd "s-r") #'eval-last-sexp)
     (global-set-key (kbd "s-R") #'eval-print-last-sexp)
@@ -393,6 +398,7 @@
 (transient-mark-mode 1)
 
 (setq select-enable-clipboard t)
+(setq-default cursor-type 'bar)
 
 (basic-editor--set-mac-keys)
 
