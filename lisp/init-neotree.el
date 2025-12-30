@@ -6,7 +6,9 @@
   ;; Basic settings
   (setq neo-window-width 35)
   (setq neo-window-fixed-size nil)
-  (setq neo-theme 'icons) ; Use icons (requires all-the-icons)
+  (if (maybe-require-package 'all-the-icons)
+      (setq neo-theme 'icons)
+    (setq neo-theme 'classic))
 
   ;; Show hidden files
   (setq neo-show-hidden-files t)

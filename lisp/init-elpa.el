@@ -31,6 +31,11 @@
 
 ;;; On-demand installation of packages
 
+;; 控制是否在启动时允许自动刷新包列表（设为 t 将完全禁止启动时的网络请求）
+(defvar sanityinc/inhibit-package-refresh-on-startup nil
+  "当设为 t 时，禁止启动过程中刷新包列表，加快启动速度。
+如需安装新包，手动运行 M-x package-refresh-contents。")
+
 (defun require-package (package &optional min-version no-refresh)
   "Install given PACKAGE, optionally requiring MIN-VERSION.
 If NO-REFRESH is non-nil, the available package lists will not be
@@ -44,8 +49,10 @@ re-downloaded in order to locate PACKAGE."
                                                        (package-desc-version a)))))))
         (if (and best (version-list-<= min-version (package-desc-version best)))
             (package-install best)
-          (if no-refresh
-              (error "No version of %s >= %S is available" package min-version)
+          (if (or no-refresh sanityinc/inhibit-package-refresh-on-startup)
+              (progn
+                (message "跳过包 %s 的安装（启动时禁止网络请求）。如需安装，运行 M-x package-refresh-contents" package)
+                nil)
             (package-refresh-contents)
             (require-package package min-version t)))
         (package-installed-p package min-version))))
@@ -67,6 +74,8 @@ locate PACKAGE."
 
 (setq package-enable-at-startup nil)
 (setq package-native-compile t)
+;; 禁用启动时自动刷新包列表，加快启动速度
+(setq package-refresh-contents-at-startup t)
 (package-initialize)
 
 

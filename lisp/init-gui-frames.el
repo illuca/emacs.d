@@ -28,14 +28,27 @@
  window-resize-pixelwise t
  frame-resize-pixelwise t)
 
-;; Default font: Sarasa Mono SC at ~14px logical pixels (Emacs uses 1/10 pt units)
+;; Default font: Sarasa Mono SC at ~16px logical pixels (Emacs uses 1/10 pt units)
 (when (display-graphic-p)
-  ;; Set default font to 14pt which displays as ~14px on Retina screens
-  (set-face-attribute 'default nil :family "Sarasa Mono SC" :height 140)
-  (set-face-attribute 'fixed-pitch nil :family "Sarasa Mono SC" :height 140)
+  ;; Set default font to 16pt which displays as ~16px on Retina screens
+  (set-face-attribute 'default nil :family "Sarasa Mono SC" :height 160)
+  (set-face-attribute 'fixed-pitch nil :family "Sarasa Mono SC" :height 160)
 
   ;; Specify the font for 'han' (Chinese) characters
-  (set-fontset-font t 'han (font-spec :family "Sarasa Mono SC" :size 14))
+  (set-fontset-font t 'han (font-spec :family "Sarasa Mono SC" :size 16))
+
+  ;; Configure emoji and symbol fonts for proper Unicode support
+  ;; These are critical for displaying icons, emoji, and special characters in terminals
+  (set-fontset-font t 'symbol (font-spec :family "Apple Symbols") nil 'prepend)
+  (set-fontset-font t 'symbol (font-spec :family "Symbols Nerd Font Mono") nil 'prepend)
+  (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'prepend)
+
+  ;; Specific Unicode ranges for box drawing and block elements
+  (set-fontset-font t '(#x2500 . #x257F) (font-spec :family "Symbols Nerd Font Mono") nil 'prepend) ; Box Drawing
+  (set-fontset-font t '(#x2580 . #x259F) (font-spec :family "Symbols Nerd Font Mono") nil 'prepend) ; Block Elements
+  (set-fontset-font t '(#x25A0 . #x25FF) (font-spec :family "Symbols Nerd Font Mono") nil 'prepend) ; Geometric Shapes
+  (set-fontset-font t '(#x2600 . #x26FF) (font-spec :family "Apple Color Emoji") nil 'prepend)       ; Miscellaneous Symbols
+  (set-fontset-font t '(#x1F300 . #x1F9FF) (font-spec :family "Apple Color Emoji") nil 'prepend)    ; Emoji
 
   ;; Use `face-font-rescale-alist` to fine-tune CJK font scaling
   ;; Adjust to prevent line height jumps when mixing Chinese and English

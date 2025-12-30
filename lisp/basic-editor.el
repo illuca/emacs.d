@@ -219,6 +219,55 @@
         (select-window window)
       (pop-to-buffer buffer))))
 
+(defun basic-editor--bottom-side-window-p (window)
+  (let ((edges (window-edges window)))
+    (= (nth 3 edges) (frame-height))))
+
+(defun basic-editor--find-bottom-terminal-window (buffer)
+  (let ((found nil))
+    (dolist (window (window-list))
+      (when (and (eq (window-buffer window) buffer)
+                 (basic-editor--bottom-side-window-p window))
+        (setq found window)))
+    found))
+
+(defun basic-editor--main-window ()
+  (let ((selected (selected-window)))
+    (if (window-parameter selected 'window-side)
+        (let ((found nil))
+          (dolist (window (window-list))
+            (when (and (not found)
+                       (not (window-parameter window 'window-side)))
+              (setq found window)))
+          (or found selected))
+      selected)))
+
+(defun basic-editor-open-terminal-below ()
+  "Open or focus the integrated terminal at the bottom."
+  (interactive)
+  (let* ((buffer (basic-editor--ensure-terminal-buffer))
+         (window (basic-editor--find-bottom-terminal-window buffer)))
+    (if (window-live-p window)
+        (select-window window)
+      (let ((target (basic-editor--main-window)))
+        (select-window target)
+        (let ((new-window (split-window-below)))
+          (set-window-buffer new-window buffer)
+          (select-window new-window))))))
+
+(defvar basic-editor--override-keys-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "s-b") #'basic-editor-open-terminal-below)
+    (define-key map (kbd "s-2") #'basic-editor-open-terminal-right)
+    (define-key map (kbd "s-p") #'execute-extended-command)
+    map)
+  "Keymap for overriding macOS keybindings that must win everywhere.")
+
+(define-minor-mode basic-editor--override-keys-mode
+  "Global overrides for a few macOS keybindings."
+  :global t
+  :keymap basic-editor--override-keys-mode-map)
+
 (defun basic-editor--right-side-window-p (window)
   (let ((edges (window-edges window)))
     (= (nth 2 edges) (frame-width))))
@@ -249,10 +298,10 @@
     (if (window-live-p window)
         (select-window window)
       (let ((target (basic-editor--rightmost-window)))
-        (with-selected-window target
-          (let ((new-window (split-window-right)))
-            (set-window-buffer new-window buffer)
-            (select-window new-window)))))))
+        (select-window target)
+        (let ((new-window (split-window-right)))
+          (set-window-buffer new-window buffer)
+          (select-window new-window))))))
 
 (defvar basic-editor--sidebar-window nil)
 (defvar basic-editor--sidebar-prev-window nil)
@@ -315,14 +364,11 @@
     (global-set-key (kbd "s-P") #'execute-extended-command)
     (global-set-key (kbd "s-n") #'basic-editor-new-empty-buffer)
     (global-set-key (kbd "s-N") #'make-frame-command)
-    (global-set-key (kbd "s-p") #'print-buffer)
     (global-set-key (kbd "s-w") #'basic-editor-kill-buffer-and-window)
     (global-set-key (kbd "s-q") #'save-buffers-kill-terminal)
     (global-set-key (kbd "s-f") #'isearch-forward)
     (global-set-key (kbd "s-[") #'basic-editor-nav-back)
     (global-set-key (kbd "s-]") #'basic-editor-nav-forward)
-    (global-set-key (kbd "s-b") #'basic-editor-open-terminal)
-    (global-set-key (kbd "s-2") #'basic-editor-open-terminal-right)
     (global-set-key (kbd "s-E") #'neotree-toggle)
     (global-set-key (kbd "s-/") #'basic-editor-comment-toggle)
     (global-set-key (kbd "s-d") #'basic-editor-duplicate)
@@ -336,6 +382,7 @@
     (global-set-key (kbd "s-R") #'eval-print-last-sexp)
     ;; ESC to cancel/quit (like other modern editors)
     (global-set-key (kbd "<escape>") #'keyboard-quit)
+    (basic-editor--override-keys-mode 1)
     (basic-editor--enable-navigation-history)))
 
 (menu-bar-mode 1)
