@@ -1,7 +1,18 @@
-[![Build Status](https://github.com/purcell/emacs.d/workflows/CI/badge.svg)](https://github.com/purcell/emacs.d/actions)
-<a href="https://www.patreon.com/sanityinc"><img alt="Support me" src="https://img.shields.io/badge/Support%20Me-%F0%9F%92%97-ff69b4.svg"></a>
+# My Personal Emacs Configuration
 
-# A reasonable Emacs config
+> **Note**: This is a personal fork based on [purcell/emacs.d](https://github.com/purcell/emacs.d). All credit for the excellent foundation goes to Steve Purcell and contributors.
+
+## My Customizations
+
+- **macOS-style keybindings**: cmd+arrow keys for navigation (line/buffer start/end)
+- **Simplified quit/close**: Single confirmation prompt instead of per-file prompts
+- **Bar cursor**: Vertical line cursor style (like VS Code)
+- **Custom basic-editor module**: Modern editor experience on macOS
+- Other personal preferences and tweaks
+
+---
+
+# Original README: A reasonable Emacs config
 
 This is my emacs configuration tree, continually used and tweaked
 since 2000, and it may be a good starting point for other Emacs
