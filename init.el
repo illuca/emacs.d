@@ -6,6 +6,11 @@
 
 ;;; Code:
 
+;; WORKAROUND: Disable native compilation due to environment variable conflicts
+;; (COMP* variables in shell interfere with libgccjit)
+;(setq native-comp-deferred-compilation nil)
+;(setq native-comp-jit-compilation nil)
+
 ;; Produce backtraces when errors occur: can be helpful to diagnose startup issues
 ;;(setq debug-on-error t)
 
@@ -192,6 +197,9 @@
 
 ;; Allow users to provide an optional "init-local" containing personal settings
 (require 'init-local nil t)
+
+;; Load basic editor defaults last so they win over other configs.
+(require 'basic-editor)
 
 (provide 'init)
 
